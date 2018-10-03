@@ -1,0 +1,66 @@
+---
+# tasks file for setup-munin-node
+- name: Install EPEL repository package
+  become: True
+  package:
+    name: "{{ item }}"
+    update_cache: yes
+    state: latest
+  with_items:
+    - epel-release
+
+- name: Install munin-node packages
+  become: True
+  package:
+    name: "{{ item }}"
+    update_cache: yes
+    state: latest
+  with_items:
+    - munin-node
+  notify:
+    - Restart munin-node
+
+- name: Deploy the local-munin.pp
+  become: True
+  copy:
+    src: local-munin.pp
+    dest: /usr/local/etc
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install SELinux module for munin
+  become: True
+  command: semodule -i /usr/local/etc/local-munin.pp
+
+- name: Configure munin-node
+  become: True
+  shell: munin-node-configure --shell | sh -x
+  notify:
+    - Restart munin-node
+
+- name: Create the node list
+  become: True
+  blockinfile:
+    path: /etc/munin/munin-node.conf
+    create: yes
+    owner: root
+    group: root
+    mode: 0644
+    seuser: system_u
+    serole: object_r
+    setype: munin_etc_t
+    selevel: s0
+    block: |
+      allow {{ munin_master_ip_address_regexp }}
+  notify:
+    - Restart munin-node
+
+- name: Enable and start munin-node
+  become: True
+  systemd:
+    name: "{{ item }}"
+    enabled : yes
+    state: started
+  with_items:
+    - munin-node

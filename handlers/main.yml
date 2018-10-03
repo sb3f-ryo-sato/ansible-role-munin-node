@@ -1,0 +1,7 @@
+---
+# handlers file for setup-munin-node
+- name: Restart munin-node
+  become: True
+  systemd:
+    name: munin-node
+    state: restarted

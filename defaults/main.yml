@@ -1,0 +1,3 @@
+---
+# defaults file for setup-munin-node
+munin_master_ip_address_regexp: ^127\.0\.0\.1$

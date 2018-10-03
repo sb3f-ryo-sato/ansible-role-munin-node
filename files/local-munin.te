@@ -1,0 +1,22 @@
+
+module local-munin 1.0;
+
+require {
+	type munin_var_lib_t;
+	type system_munin_plugin_t;
+	type tmpreaper_t;
+	type munin_script_t;
+	type proc_xen_t;
+	class file { create setattr unlink write };
+	class dir { add_name create read remove_name rmdir write };
+}
+
+#============= munin_script_t ==============
+allow munin_script_t munin_var_lib_t:dir { add_name create remove_name write };
+allow munin_script_t munin_var_lib_t:file { create setattr unlink write };
+
+#============= system_munin_plugin_t ==============
+allow system_munin_plugin_t proc_xen_t:dir read;
+
+#============= tmpreaper_t ==============
+allow tmpreaper_t munin_var_lib_t:dir rmdir;

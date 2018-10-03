@@ -1,0 +1,5 @@
+---
+- name: Setup the Munin node
+  hosts: jmeter_servers
+  roles:
+    - setup-munin-node
